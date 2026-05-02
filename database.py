@@ -21,21 +21,23 @@ load_dotenv()
 #     "postgresql://postgres:admin%40123@localhost:5432/aiknowledgebase"
 # )
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",  # Railway sets this automatically
-    os.getenv(
-        "POSTGRES_URL",
-        "postgresql://postgres:admin%40123@localhost:5432/aiknowledgebase"
-    )
-)
+DATABASE_URL = os.getenv("DATABASE_URL") or \
+               os.getenv("POSTGRES_URL")
 
-# Railway uses postgres:// but SQLAlchemy needs postgresql://
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+if not DATABASE_URL:
+    raise ValueError(
+        "DATABASE_URL not set! "
+        "Add PostgreSQL service in Railway."
+    )
+
+# Railway uses postgres:// fix to postgresql://
+if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace(
         "postgres://", "postgresql://", 1
     )
 
 engine = create_engine(DATABASE_URL, echo=False)
+
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
 
