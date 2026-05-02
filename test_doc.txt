@@ -1,0 +1,1 @@
+This is a test document about AI engineering. RAG stands for Retrieval Augmented Generation. LangGraph builds stateful agent workflows. Pinecone stores vectors for semantic search. 

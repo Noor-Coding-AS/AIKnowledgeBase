@@ -1,0 +1,1 @@
+RAG combines semantic search with LLM generation. LangGraph builds stateful agent workflows with nodes and edges. Pinecone is a cloud vector database. Docker containerizes AI applications. CI/CD automates deployment pipelines. FastAPI serves AI models as REST endpoints. Asfer Saeed is building AI Knowledge Base SaaS on Day 33 of 90 day journey. 
