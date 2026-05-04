@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Knowledge Base — Asfer Saeed</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+        header {
+            background: linear-gradient(135deg, #1F4E79, #2E75B6);
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        header h1 { font-size: 22px; }
+        header p { font-size: 12px; opacity: 0.8; margin-top: 3px; }
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 16px;
+        }
+        .card h2 {
+            font-size: 15px;
+            color: #1F4E79;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #EBF3FB;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 8px;
+            transition: border 0.2s;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #2E75B6;
+        }
+        textarea { height: 80px; resize: vertical; }
+        button {
+            background: #2E75B6;
+            color: white;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            width: 100%;
+            margin-bottom: 6px;
+            transition: background 0.2s;
+        }
+        button:hover { background: #1F4E79; }
+        button.secondary { background: #6c757d; }
+        button.success { background: #27ae60; }
+        .kb-item {
+            padding: 10px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .kb-item:hover { border-color: #2E75B6; background: #f8fbff; }
+        .kb-item.selected { border-color: #2E75B6; background: #EBF3FB; }
+        .kb-item h4 { font-size: 13px; color: #1F4E79; font-weight: 600; }
+        .kb-item p { font-size: 11px; color: #888; margin-top: 2px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .stat-box {
+            background: linear-gradient(135deg, #EBF3FB, #dbeafe);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+        .stat-box .num {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1F4E79;
+        }
+        .stat-box .lbl {
+            font-size: 10px;
+            color: #666;
+            margin-top: 2px;
+        }
+        #answer-box {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            min-height: 120px;
+            font-size: 14px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            color: #333;
+        }
+        .answer-meta {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .tag {
+            background: #EBF3FB;
+            color: #2E75B6;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .tag.green { background: #d4edda; color: #27ae60; }
+        .tag.orange { background: #fff3cd; color: #856404; }
+        .tab-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 7px;
+            font-size: 12px;
+            margin: 0;
+        }
+        .upload-zone {
+            border: 2px dashed #2E75B6;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: background 0.2s;
+        }
+        .upload-zone:hover { background: #f0f7ff; }
+        .history-item {
+            padding: 10px;
+            border-left: 3px solid #2E75B6;
+            background: #f8fbff;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .history-item .q {
+            font-weight: 600;
+            color: #1F4E79;
+            margin-bottom: 4px;
+        }
+        .history-item .a { color: #555; }
+        .status-msg { font-size: 12px; margin-top: 6px; }
+        .success-msg { color: #27ae60; }
+        .error-msg { color: #c0392b; }
+        .loading-msg { color: #2E75B6; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1>🤖 AI Knowledge Base</h1>
+        <p>Upload documents · Ask questions · Get AI answers</p>
+    </div>
+    <div style="text-align:right">
+        <div class="badge">Built by Asfer Saeed — Day 35 of 90</div>
+        <div id="online-status"
+             style="font-size:11px; margin-top:4px; opacity:0.8">
+            ● Connecting...
+        </div>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- LEFT SIDEBAR -->
+    <div>
+        <div class="card">
+            <h2>📚 Create Knowledge Base</h2>
+            <input id="kb-name" type="text"
+                   placeholder="Knowledge Base Name"/>
+            <textarea id="kb-desc"
+                      placeholder="Description (optional)"
+                      style="height:60px"></textarea>
+            <button onclick="createKB()" class="success">
+                + Create Knowledge Base
+            </button>
+            <div id="kb-status" class="status-msg"></div>
+        </div>
+
+        <div class="card">
+            <h2>📋 Knowledge Bases</h2>
+            <div id="kb-list">
+                <p style="color:#999; font-size:12px">
+                    Loading...
+                </p>
+            </div>
+            <button onclick="loadKBs()" class="secondary"
+                    style="margin-top:8px">
+                🔄 Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div>
+
+        <!-- Stats -->
+        <div class="card">
+            <h2>📊 Platform Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="num" id="s-kb">-</div>
+                    <div class="lbl">Knowledge Bases</div>
+                </div>
+                <div class="stat-box">
+                    <div class="num" id="s-doc">-</div>
+                    <div class="lbl">Documents</div>
+                </div>
+                <div class="stat-box">
+                    <div class="num" id="s-q">-</div>
+                    <div class="lbl">Questions Asked</div>
+                </div>
+                <div class="stat-box">
+                    <div class="num" id="s-v">-</div>
+                    <div class="lbl">Vectors Stored</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Content -->
+        <div class="card">
+            <h2>📄 Add Content</h2>
+            <select id="kb-select-doc">
+                <option value="">-- Select Knowledge Base --</option>
+            </select>
+
+            <div class="tab-bar">
+                <button class="tab-btn"
+                        id="tab-text"
+                        onclick="showTab('text')">
+                    ✏️ Paste Text
+                </button>
+                <button class="tab-btn secondary"
+                        id="tab-file"
+                        onclick="showTab('file')">
+                    📁 Upload File
+                </button>
+            </div>
+
+            <!-- Text panel -->
+            <div id="panel-text">
+                <input id="doc-title" type="text"
+                       placeholder="Document Title"/>
+                <textarea id="doc-content"
+                          placeholder="Paste content here...">
+                </textarea>
+                <button onclick="addDocument()">
+                    📤 Add Document
+                </button>
+            </div>
+
+            <!-- File panel -->
+            <div id="panel-file" style="display:none">
+                <div class="upload-zone"
+                     onclick="document.getElementById('file-inp').click()">
+                    <div style="font-size:28px">📁</div>
+                    <p style="color:#2E75B6; font-weight:600;
+                               font-size:13px; margin-top:6px">
+                        Click to select file
+                    </p>
+                    <p style="font-size:11px; color:#888;
+                               margin-top:3px">
+                        PDF · TXT · DOCX supported
+                    </p>
+                </div>
+                <input id="file-inp" type="file"
+                       accept=".pdf,.txt,.docx,.md"
+                       style="display:none"
+                       onchange="updateFileName()"/>
+                <div id="file-name"
+                     style="font-size:12px; color:#666;
+                            margin-bottom:8px">
+                    No file selected
+                </div>
+                <button onclick="uploadFile()">
+                    🚀 Upload and Index
+                </button>
+            </div>
+
+            <div id="doc-status" class="status-msg"></div>
+        </div>
+
+        <!-- Ask Question -->
+        <div class="card">
+            <h2>💬 Ask AI</h2>
+            <select id="kb-select-ask">
+                <option value="">-- Select Knowledge Base --</option>
+            </select>
+            <div style="display:flex; gap:8px; margin-bottom:10px;">
+                <input id="question" type="text"
+                       placeholder="Ask your question..."
+                       style="margin:0; flex:1"
+                       onkeypress="if(event.key==='Enter') ask()"/>
+                <button onclick="ask()"
+                        style="width:auto; margin:0;
+                               padding:9px 20px; white-space:nowrap">
+                    Ask AI ✨
+                </button>
+            </div>
+            <div id="answer-box">
+                Select a knowledge base and ask a question...
+            </div>
+            <div class="answer-meta" id="answer-meta"></div>
+        </div>
+
+        <!-- Query History -->
+        <div class="card">
+            <h2>📜 Query History</h2>
+            <select id="kb-select-history"
+                    onchange="loadHistory()">
+                <option value="">-- Select KB --</option>
+            </select>
+            <div id="history-list">
+                <p style="color:#999; font-size:12px">
+                    Select a knowledge base to see history
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const API = window.location.origin;
+
+window.onload = () => {
+    loadStats();
+    loadKBs();
+    setInterval(loadStats, 30000);
+};
+
+// ── Stats ──────────────────────────────────────────
+async function loadStats() {
+    try {
+        const r = await fetch(`${API}/`);
+        const d = await r.json();
+        document.getElementById('s-kb').textContent =
+            d.stats.knowledge_bases;
+        document.getElementById('s-doc').textContent =
+            d.stats.documents;
+        document.getElementById('s-q').textContent =
+            d.stats.queries_answered;
+        document.getElementById('s-v').textContent =
+            d.stats.vectors_stored;
+        document.getElementById('online-status')
+            .textContent = '● Online';
+        document.getElementById('online-status')
+            .style.color = '#90EE90';
+    } catch(e) {
+        document.getElementById('online-status')
+            .textContent = '● Offline';
+    }
+}
+
+// ── Knowledge Bases ────────────────────────────────
+async function loadKBs() {
+    try {
+        const r = await fetch(`${API}/kb`);
+        const d = await r.json();
+        const list = document.getElementById('kb-list');
+
+        const selDoc = document.getElementById('kb-select-doc');
+        const selAsk = document.getElementById('kb-select-ask');
+        const selHist = document.getElementById('kb-select-history');
+
+        list.innerHTML = '';
+        selDoc.innerHTML = '<option value="">-- Select KB --</option>';
+        selAsk.innerHTML = '<option value="">-- Select KB --</option>';
+        selHist.innerHTML = '<option value="">-- Select KB --</option>';
+
+        if (d.knowledge_bases.length === 0) {
+            list.innerHTML =
+                '<p style="color:#999;font-size:12px">' +
+                'No KBs yet. Create one!</p>';
+            return;
+        }
+
+        d.knowledge_bases.forEach(kb => {
+            const div = document.createElement('div');
+            div.className = 'kb-item';
+            div.innerHTML = `
+                <h4>📚 ${kb.name}</h4>
+                <p>${kb.doc_count || 0} docs ·
+                   ${kb.query_count || 0} queries</p>
+            `;
+            div.onclick = () => {
+                document.querySelectorAll('.kb-item')
+                    .forEach(i => i.classList.remove('selected'));
+                div.classList.add('selected');
+                selDoc.value = kb.id;
+                selAsk.value = kb.id;
+                selHist.value = kb.id;
+                loadHistory();
+            };
+            list.appendChild(div);
+
+            [selDoc, selAsk, selHist].forEach(sel => {
+                sel.appendChild(new Option(kb.name, kb.id));
+            });
+        });
+    } catch(e) {
+        document.getElementById('kb-list').innerHTML =
+            '<p class="error-msg">Failed to load</p>';
+    }
+}
+
+async function createKB() {
+    const name = document.getElementById('kb-name').value.trim();
+    const desc = document.getElementById('kb-desc').value.trim();
+    const status = document.getElementById('kb-status');
+
+    if (!name) {
+        status.innerHTML =
+            '<span class="error-msg">Name required!</span>';
+        return;
+    }
+    status.innerHTML =
+        '<span class="loading-msg">Creating...</span>';
+
+    try {
+        const r = await fetch(`${API}/kb`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({name, description: desc})
+        });
+        const d = await r.json();
+        status.innerHTML =
+            `<span class="success-msg">✅ Created: ${d.name}</span>`;
+        document.getElementById('kb-name').value = '';
+        document.getElementById('kb-desc').value = '';
+        loadKBs();
+        loadStats();
+    } catch(e) {
+        status.innerHTML =
+            '<span class="error-msg">❌ Error</span>';
+    }
+}
+
+// ── Tabs ───────────────────────────────────────────
+function showTab(tab) {
+    document.getElementById('panel-text').style.display =
+        tab === 'text' ? 'block' : 'none';
+    document.getElementById('panel-file').style.display =
+        tab === 'file' ? 'block' : 'none';
+    document.getElementById('tab-text').className =
+        'tab-btn' + (tab === 'text' ? '' : ' secondary');
+    document.getElementById('tab-file').className =
+        'tab-btn' + (tab === 'file' ? '' : ' secondary');
+}
+
+// ── Documents ──────────────────────────────────────
+async function addDocument() {
+    const kbId = document.getElementById('kb-select-doc').value;
+    const title = document.getElementById('doc-title').value.trim();
+    const content = document.getElementById('doc-content').value.trim();
+    const status = document.getElementById('doc-status');
+
+    if (!kbId || !title || !content) {
+        status.innerHTML =
+            '<span class="error-msg">All fields required!</span>';
+        return;
+    }
+    status.innerHTML =
+        '<span class="loading-msg">⏳ Processing...</span>';
+
+    try {
+        const r = await fetch(`${API}/kb/${kbId}/documents`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({title, content})
+        });
+        const d = await r.json();
+        status.innerHTML =
+            `<span class="success-msg">
+             ✅ Added! ${d.chunks} chunks indexed</span>`;
+        document.getElementById('doc-title').value = '';
+        document.getElementById('doc-content').value = '';
+        loadKBs();
+        loadStats();
+    } catch(e) {
+        status.innerHTML =
+            '<span class="error-msg">❌ Error</span>';
+    }
+}
+
+function updateFileName() {
+    const f = document.getElementById('file-inp').files[0];
+    if (f) {
+        document.getElementById('file-name').innerHTML =
+            `<span class="success-msg">✅ ${f.name} (${(f.size/1024).toFixed(1)} KB)</span>`;
+    }
+}
+
+async function uploadFile() {
+    const kbId = document.getElementById('kb-select-doc').value;
+    const fileInp = document.getElementById('file-inp');
+    const status = document.getElementById('doc-status');
+
+    if (!kbId) {
+        status.innerHTML =
+            '<span class="error-msg">Select a KB first!</span>';
+        return;
+    }
+    if (!fileInp.files.length) {
+        status.innerHTML =
+            '<span class="error-msg">Select a file!</span>';
+        return;
+    }
+
+    const file = fileInp.files[0];
+    const fd = new FormData();
+    fd.append('file', file);
+    status.innerHTML =
+        `<span class="loading-msg">⏳ Processing ${file.name}...</span>`;
+
+    try {
+        const r = await fetch(
+            `${API}/kb/${kbId}/upload`,
+            {method: 'POST', body: fd}
+        );
+        const d = await r.json();
+        if (r.ok) {
+            status.innerHTML =
+                `<span class="success-msg">
+                 ✅ ${d.filename}<br>
+                 📄 ${d.chunks_created} chunks · 
+                 🔢 ${d.vectors_stored} vectors
+                 </span>`;
+            fileInp.value = '';
+            document.getElementById('file-name')
+                .textContent = 'No file selected';
+            loadKBs();
+            loadStats();
+        } else {
+            status.innerHTML =
+                `<span class="error-msg">❌ ${d.detail}</span>`;
+        }
+    } catch(e) {
+        status.innerHTML =
+            '<span class="error-msg">❌ Upload failed</span>';
+    }
+}
+
+// ── Ask AI ─────────────────────────────────────────
+async function ask() {
+    const kbId = document.getElementById('kb-select-ask').value;
+    const q = document.getElementById('question').value.trim();
+    const box = document.getElementById('answer-box');
+    const meta = document.getElementById('answer-meta');
+
+    if (!kbId || !q) {
+        box.textContent = '❌ Select a KB and enter a question!';
+        return;
+    }
+
+    box.textContent = '⏳ Searching knowledge base...';
+    meta.innerHTML = '';
+
+    try {
+        const r = await fetch(`${API}/kb/${kbId}/ask`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({question: q})
+        });
+        const d = await r.json();
+        box.textContent = d.answer;
+
+        const confPct = Math.round(d.confidence * 100);
+        const confClass = confPct >= 70 ? 'green' :
+                         confPct >= 40 ? '' : 'orange';
+        meta.innerHTML = `
+            <span class="tag">⚡ ${d.latency_ms}ms</span>
+            <span class="tag">📄 ${d.sources_count} sources</span>
+            <span class="tag ${confClass}">
+                🎯 ${confPct}% confidence
+            </span>
+        `;
+        document.getElementById('question').value = '';
+        loadHistory();
+        loadStats();
+    } catch(e) {
+        box.textContent = '❌ Error: ' + e.message;
+    }
+}
+
+// ── History ────────────────────────────────────────
+async function loadHistory() {
+    const kbId = document.getElementById(
+        'kb-select-history'
+    ).value;
+    const list = document.getElementById('history-list');
+
+    if (!kbId) return;
+
+    try {
+        const r = await fetch(`${API}/kb/${kbId}/history`);
+        const d = await r.json();
+
+        if (d.history.length === 0) {
+            list.innerHTML =
+                '<p style="color:#999;font-size:12px">' +
+                'No queries yet for this KB</p>';
+            return;
+        }
+
+        list.innerHTML = d.history.map(h => `
+            <div class="history-item">
+                <div class="q">Q: ${h.question}</div>
+                <div class="a">A: ${h.answer}</div>
+                <div style="margin-top:4px">
+                    <span class="tag">⚡ ${h.latency_ms}ms</span>
+                    <span class="tag">🎯 ${Math.round(h.confidence*100)}%</span>
+                </div>
+            </div>
+        `).join('');
+    } catch(e) {
+        list.innerHTML =
+            '<p class="error-msg">Failed to load history</p>';
+    }
+}
+</script>
+</body>
+</html>

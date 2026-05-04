@@ -453,4 +453,47 @@ async def health():
         "timestamp": datetime.now().strftime(
             "%Y-%m-%d %H:%M:%S"
         )
+
+
+    }
+
+@app.get("/kb/{kb_id}/history", tags=["AI Agent"])
+async def query_history(
+    kb_id: int,
+    limit: int = 10,
+    db: Session = Depends(get_db)
+):
+    """Get query history for a knowledge base"""
+    kb = db.query(KnowledgeBase).filter(
+        KnowledgeBase.id == kb_id
+    ).first()
+    if not kb:
+        raise HTTPException(
+            status_code=404,
+            detail="Knowledge base not found"
+        )
+
+    queries = db.query(QueryRecord).filter(
+        QueryRecord.kb_id == kb_id
+    ).order_by(
+        QueryRecord.created_at.desc()
+    ).limit(limit).all()
+
+    return {
+        "kb_name": kb.name,
+        "total_queries": kb.query_count,
+        "history": [
+            {
+                "id": q.id,
+                "question": q.question,
+                "answer": q.answer[:150] + "..."
+                          if len(q.answer or "") > 150
+                          else q.answer,
+                "confidence": q.confidence,
+                "sources": q.sources_count,
+                "latency_ms": q.latency_ms,
+                "asked_at": str(q.created_at)
+            }
+            for q in queries
+        ]
     }
